@@ -7,6 +7,7 @@ import { TileLayer } from 'react-leaflet/TileLayer'
 import { Polyline } from "react-leaflet";
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet';
+import { icon } from "leaflet";
 
 const URL = `${config.WEBSOCKET_URL}`;
 let connect_message = '{"type": "join", "id": "user id", "username": "Skinny Pete"}';
@@ -61,8 +62,10 @@ const Flights = () => {
     const [positions] = useState({});
     const [takeOff, setTakeOff] = useState({});
     const [takeOff2, setTakeOff2] = useState([]);
+    const [takeOff3, setTakeOff3] = useState([]);
     const [landing, setLanding] = useState({});
     const [landing2, setLanding2] = useState([]);
+    const [landing3, setLanding3] = useState([]);
     const [crashed, setCrashed] = useState({});
 
     const [messages, setMessages] = useState([]);
@@ -74,6 +77,17 @@ const Flights = () => {
       ws.send(JSON.stringify(message));
     }
     useEffect(() => {
+      if (takeOff3.length > 0 ) {
+        setTimeout(() => {
+          takeOff3.splice(takeOff3.length - 1);
+        }, 5000)
+      }
+
+      if (landing3.length > 0 ) {
+        setTimeout(() => {
+          landing3.splice(landing3.length - 1);
+        }, 5000)
+      }
 	    ws.onopen = () => {
 	      console.log('WebSocket Connected');
         ws.send(connect_message);
@@ -122,6 +136,7 @@ const Flights = () => {
                     
                   }
                   positions[message["plane"].flight_id].positionsDefined = "true";
+                  // console.log(positions[`${message["plane"].flight_id}`]);
                 }
 
                 if (message.type === "take-off") {
@@ -129,9 +144,7 @@ const Flights = () => {
                     if (message["flight_id"] in flights) {
                       setTakeOff(flights[`${message["flight_id"]}`].departure.location);
                       setTakeOff2(Object.keys(takeOff));
-                      // console.log(takeOff);
-                      // console.log(takeOff2.length);
-                      // console.log(takeOff["lat"]);
+                      takeOff3.push([flights[`${message["flight_id"]}`].departure.location]);
                       
                     } else {
                       // console.log("no esta");
@@ -142,6 +155,7 @@ const Flights = () => {
                   if (message["flight_id"] in flights) {
                     setLanding(flights[`${message["flight_id"]}`].destination.location);
                     setLanding2(Object.keys(landing));
+                    landing3.push([flights[`${message["flight_id"]}`].destination.location]);
                     
                   } else {
                     // console.log("no esta");
@@ -149,12 +163,22 @@ const Flights = () => {
                 }
 
                 if (message.type === "crashed") {
-                  // console.log("crashed");
+                  console.log("crashed");
+                  console.log(message["flight_id"]);
+                  if (message["flight_id"] in flights) {
+                    // setear algo con la posicion de choque
+                    // setCrashed(positions[flights[`${message["flight_id"]}`]].position);
+                    // positions[flights[`${message["flight_id"]}`]].status = "crashed";
+                    console.log(positions[message["flight_id"]].position);
+                    console.log(crashed);
+                    console.log(positions[flights[`${message["flight_id"]}`]]);
+                    console.log(crashed["lat"]);
+                  }
                 
                 }
 
                 if (message.type === "message") {
-                    console.log(message);
+                    // console.log(message);
                     // console.log(message["message"].content);
                     messages.push([message["message"].name, message["message"].content, message["message"].date, message["message"].level]);
                     if (messages.length > 5) {
@@ -222,7 +246,7 @@ const Flights = () => {
 
                 {flights2.length > 0 &&
                   flights2.map( (vuelo, index) => {
-                    if (positions[vuelo].positionsDefined === "true") {
+                    if (positions[vuelo].positionsDefined === "true" && positions[vuelo].status === "flying") {
                         return <Marker position={[positions[vuelo].positions[positions[vuelo].positions.length - 1][0], positions[vuelo].positions[positions[vuelo].positions.length - 1][1]]} key={index} icon={planeIcon}>
                         <Popup>
                           <p>ID vuelo: {vuelo}</p>
@@ -237,26 +261,45 @@ const Flights = () => {
                     }
                   })
                 }
-                {/* {flights2.length > 0 &&
-                  flights2.map( (vuelo, index) => {
-                    if (positions[vuelo].positionsDefined === "true") {
-                      positions[vuelo].positions.map( (posicion, index2) => {
-                         return <Marker position={[posicion[0], posicion[1]]} key={index2} icon={dotIcon}></Marker>
-                        // console.log(`${vuelo} ${posicion[0]}, ${posicion[1]}`)
-                        // console.log(posicion)
+                {flights2.length > 0 &&
+                  // flights2.map( (vuelo, index) => {
+                  //   if (positions[vuelo].positionsDefined === "true") {
+                  //     // positions[vuelo].positions.map( (posicion, index2) => {
+                  //     //   <Marker position={[posicion[0], posicion[1]]} key={index2} icon={takeoffIcon}></Marker>
+                  //     //   // console.log(`${vuelo} ${posicion[0]}, ${posicion[1]}`)
+                  //     //   // console.log(posicion)
+                  //     // })
+                  //   } else {
+                  //     return true
+                  //   }
+                  // })
+                  flights2.forEach( function(valor, indice, array) {
+                    if (positions[valor].positionsDefined === "true") {
+                      positions[valor].positions.map( (posicion, index) => {
+                        return <Marker position={[posicion[0], posicion[1]]} key={index} icon={dotIcon}></Marker>
                       })
-                    } else {
-                      return true
                     }
                   })
-                } */}
-
-                {takeOff2.length > 0 &&
-                  <Marker position={[takeOff["lat"], takeOff["long"]]} icon={takeoffIcon}></Marker>
                 }
 
-                {landing2.length > 0 &&
-                  <Marker position={[landing["lat"], landing["long"]]} icon={landingIcon}></Marker>
+                {takeOff3.length > 0 &&
+                  takeOff3.map( (element, index) => {
+                    return <Marker position={[element[0]["lat"], element[0]["long"]]} key={index} icon={takeoffIcon}>
+                      <Popup>
+                        <p>Take off</p>
+                      </Popup>
+                    </Marker>
+                  })
+                }
+
+                {landing3.length > 0 &&
+                  landing3.map( (element, index) => {
+                    return <Marker position={[element[0]["lat"], element[0]["long"]]} key={index} icon={landingIcon}>
+                      <Popup>
+                        <p>Landing</p>
+                      </Popup>
+                    </Marker>
+                  })
                 }
       
             </MapContainer>
