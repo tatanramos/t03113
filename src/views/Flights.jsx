@@ -163,17 +163,17 @@ const Flights = () => {
                 }
 
                 if (message.type === "crashed") {
-                  console.log("crashed");
-                  console.log(message["flight_id"]);
-                  if (message["flight_id"] in flights) {
-                    // setear algo con la posicion de choque
-                    // setCrashed(positions[flights[`${message["flight_id"]}`]].position);
-                    // positions[flights[`${message["flight_id"]}`]].status = "crashed";
-                    console.log(positions[message["flight_id"]].position);
-                    console.log(crashed);
-                    console.log(positions[flights[`${message["flight_id"]}`]]);
-                    console.log(crashed["lat"]);
-                  }
+                  // console.log("crashed");
+                  // console.log(message["flight_id"]);
+                  // if (message["flight_id"] in flights) {
+                  //   // setear algo con la posicion de choque
+                  //   // setCrashed(positions[flights[`${message["flight_id"]}`]].position);
+                  //   // positions[flights[`${message["flight_id"]}`]].status = "crashed";
+                  //   console.log(positions[message["flight_id"]].position);
+                  //   console.log(crashed);
+                  //   console.log(positions[flights[`${message["flight_id"]}`]]);
+                  //   console.log(crashed["lat"]);
+                  // }
                 
                 }
 
@@ -261,7 +261,7 @@ const Flights = () => {
                     }
                   })
                 }
-                {flights2.length > 0 &&
+                {/* {flights2.length > 0 &&
                   // flights2.map( (vuelo, index) => {
                   //   if (positions[vuelo].positionsDefined === "true") {
                   //     // positions[vuelo].positions.map( (posicion, index2) => {
@@ -280,7 +280,7 @@ const Flights = () => {
                       })
                     }
                   })
-                }
+                } */}
 
                 {takeOff3.length > 0 &&
                   takeOff3.map( (element, index) => {
